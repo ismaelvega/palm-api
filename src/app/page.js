@@ -2,35 +2,53 @@
 
 import { Suspense, useState } from "react";
 import { marked } from "marked";
+import axios from "axios";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("yoo");
   const [interactions, setInteractions] = useState([]);
 
   async function showInteractions() {
     // if the prompt is not empty then add it to the interactions array
     if (prompt !== "") {
       setInteractions(
-        interactions.push({
-          type: "prompt",
-          prompt,
-        })
+        [{
+          content: prompt
+        }]
       );
 
-      setInteractions([
-        ...interactions,
-        {
-          type: "response",
-          response: await createMarkup(prompt)
-        },
-      ]);
+      console.log(interactions)
+
+      // const getResponse = async () => {
+      //   try {
+      //     const response = await axios.post('/api/response', {
+      //       interactions
+      //     });
+      //     const data = response.data;
+      //     console.log(data); // Log the retrieved object
+          
+      //     return data;
+      //   } catch (error) {
+      //     console.error(error);
+      //   }
+      // }
+      
+      // setInteractions([
+      //   ...interactions,
+      //   {
+      //     content: await getResponse()
+      //   }
+      // ]);
+
+      console.log(interactions)
     }
   }
 
   const createMarkup = async (prompt) => {
     const getResponse = async () => {
       if (prompt.length !== 0) {
-        const data = await fetch(`/response?prompt=${prompt}`);
+        const data = await fetch(`/api/response?prompt=${prompt}`);
         const response = await data.json();
         console.log(response.data);
 
@@ -38,7 +56,9 @@ export default function Home() {
       }
     };
 
-    return { __html: marked(`Palm: ${await getResponse()}`) };
+    setResponse(await getResponse());
+
+    return { __html: marked(`Palm: ${response}`) };
   };
 
   function Loading({ prompt }) {
@@ -56,18 +76,25 @@ export default function Home() {
       />
       <button onClick={() => showInteractions()}>Submit</button>
       {
-        interactions.length > 0 && interactions.map((interaction) => {
-          if (interaction.type === "prompt") {
-            return <div key={interaction.key}>User: {interaction.prompt}</div>;
-          } else {
-            return (
-              <div
-                key={interaction.key}
-                dangerouslySetInnerHTML={interaction.response}
-                style={{ border: '1px solid #ccc', padding: '10px' }}
-              />
-            );
-          }
+        interactions.length > 0 && interactions.map((interaction, index) => {
+          return(
+            <>
+              <div key={interaction.index}>
+                <div key={interaction.index}>{index}: {interaction.content}</div>
+              </div>
+            </>
+          )
+          // if (interaction.type === "prompt") {
+          //   return <div key={interaction.key}>User: {interaction.prompt}</div>;
+          // } else {
+          //   return (
+          //     <div
+          //       key={interaction.key}
+          //       dangerouslySetInnerHTML={interaction.response.html}
+          //       style={{ border: '1px solid #ccc', padding: '10px' }}
+          //     />
+          //   );
+          // }
       }
       )}
     </>

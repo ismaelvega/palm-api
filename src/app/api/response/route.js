@@ -1,9 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse} from "next/server";
 
-export async function GET(request) {
-  
-  const { searchParams } = new URL(request.url);
-  const prompt = searchParams.get("prompt");
+export async function POST(request) {
+  const { interactions } = await request.json();
 
   const { DiscussServiceClient } = require("@google-ai/generativelanguage");
   const { GoogleAuth } = require("google-auth-library");
@@ -18,17 +16,14 @@ export async function GET(request) {
   const res = await client.generateMessage({
     model: MODEL_NAME,
     prompt: {
-      messages: [
-        {
-          content: prompt,
-        },
-      ],
+      messages: interactions
     },
   });
 
-  console.log(res[0].candidates[0].content);
+  // console.log(res[0].candidates[0].content);
 
   const data = res[0].candidates[0].content;
+  console.log(data);
 
   return NextResponse.json({ data });
 }
