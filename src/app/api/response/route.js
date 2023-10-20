@@ -1,7 +1,8 @@
-import { NextResponse} from "next/server";
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
   const { interactions } = await request.json();
+  console.log(interactions);
 
   const { DiscussServiceClient } = require("@google-ai/generativelanguage");
   const { GoogleAuth } = require("google-auth-library");
@@ -15,15 +16,22 @@ export async function POST(request) {
 
   const res = await client.generateMessage({
     model: MODEL_NAME,
+    context:
+      "Write the responses in order to be displayed in formatted markdown. The library used is called Marked.",
     prompt: {
-      messages: interactions
+      messages: interactions,
     },
   });
 
-  // console.log(res[0].candidates[0].content);
-
-  const data = res[0].candidates[0].content;
+  const data = res[0].candidates[0].content || null;
   console.log(data);
 
-  return NextResponse.json({ data });
+  return NextResponse.json({
+    data: [
+      ...interactions,
+      {
+        content: data,
+      },
+    ],
+  });
 }

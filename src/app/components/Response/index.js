@@ -1,17 +1,13 @@
-export async function Response({ prompt }) {
-    const response = async function getPrompt() {
-      if(prompt.length !== 0) {
-        const data = await fetch(`/response?prompt=${prompt}`)
-        const response = await data.json()
-        console.log(response.data)
-        return response.data
-      }
-    }
+"use client";
+import { marked } from "marked";
 
-    return (
-        <div>
-          <h1>Response</h1>
-          <div>{response()}</div>
-        </div>
-    )
+export function Response({ prompt }) {
+  return (
+    <>
+      <div
+        dangerouslySetInnerHTML={{ __html: marked(`**PaLM:** ${prompt}`) }}
+        style={{ border: "1px solid #ccc", padding: "10px" }}
+      />
+    </>
+  );
 }
